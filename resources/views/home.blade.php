@@ -10,18 +10,18 @@
                         {{ session('status') }}
                     </div>
                 @endif
-                @for ($i = 0; $i < 5; $i++)
+                @foreach ($products as $product)
                 <div class="card" style="width: 18rem; display: inline-block;">
-                    <img src="..." class="card-img-top" alt="...">
+                    <img src="@if ($product->photo)/storage/{{$product->photo}}.jpg @else/storage/imagenotfound.png @endif" class="card-img-top" alt="..." style="min-height: 225px;">
                     <div class="card-body">
-                        <h5 class="card-title">Product title</h5>
-                        <h6>Product Price</h6>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                        <a href="#" class="btn btn-primary">Buy now!</a>
+                        <h5 class="card-title">{{ $product->title }}</h5>
+                        <h6>{{ $product->price }}$ ARS</h6>
+                        <p class="card-text" style="max-height: 17ch;overflow: hidden;">{{ $product->description }}</p>
+                        <a href="/product/{{$product->id}}" class="btn btn-primary">Buy now!</a>
                         <a href="#" class="btn btn-light">Add to cart</a>
                     </div>
                 </div>
-                @endfor
+                @endforeach
             </div>
         </div>
     </div>
