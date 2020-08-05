@@ -5,12 +5,17 @@
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card-body">
+                @if (isset($vac['msg']))
+                    <div class="alert alert-primary" role="alert">
+                        {{$vac['msg']}}
+                    </div>
+                @endif
                 @if (session('status'))
                     <div class="alert alert-success" role="alert">
                         {{ session('status') }}
                     </div>
                 @endif
-                @foreach ($products as $product)
+                @foreach ($vac['products'] as $product)
                 <div class="card" style="width: 18rem; display: inline-block;">
                     <img src="@if ($product->photo)/storage/{{$product->photo}}.jpg @else/storage/imagenotfound.png @endif" class="card-img-top" alt="..." style="min-height: 225px;">
                     <div class="card-body">

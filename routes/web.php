@@ -11,14 +11,19 @@
 |
 */
 
-/*Route::get('/', function () {
-    return view('home');
-});*/
+Route::get('/home', function () {
+    return redirect('/');
+});
 
 Auth::routes();
 
 Route::get('/', 'HomeController@index')->name('home');
 
 Route::get('/product/{id}', 'ProductController@index');
+
+Route::get('/product/{id}/order', 'ProductController@order');
+
+Route::get('/product/{id}/checkout', 'ProductController@checkout');
+
 
 

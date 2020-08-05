@@ -70,6 +70,12 @@
                                     </form>
                                 </div>
                             </li>
+                            <script>
+                                $dropdown = document.querySelector('#navbarDropdown');
+                                $dropdown.click = function() {
+                                    $dropdown.style.display('block');
+                                };
+                            </script>
                         @endguest
                     </ul>
                 </div>
