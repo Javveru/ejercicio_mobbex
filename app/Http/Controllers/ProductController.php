@@ -19,36 +19,46 @@ class ProductController extends Controller
     {
         $product = Product::find($id);
 
-        $description = "Compra de un/una $product->title por $product->price $ ARS.";
+        $description = "Compra de un/una $product->title por $product->price $ ARS. Para recibir la orden de pago por email primero debe iniciar sesión.";
 
-        $email = auth()->user()->email;
+        $postfields = array("total" => $product->price, "description" => $description, "return_url" => route('home', ['code' => 1]));
+        
+        if (auth()->user()) {
+            $description = "Compra de un/una $product->title por $product->price $ ARS.";
+            $email = auth()->user()->email;
+            $postfields["email"] = $email;
+        } 
 
-        if ($email == null) {
-            $description = $description . "Para recibir la orden de pago por email primero debe iniciar sesión.";
-        }
+        $curl = curl_init();
 
-        $response = Curl::to('https://api.mobbex.com/p/payment_order')
-        ->withHeaders( array( 'x-api-key' => 'zJ8LFTBX6Ba8D611e9io13fDZAwj0QmKO1Hn1yIj', 'x-access-token' => 'd31f0721-2f85-44e7-bcc6-15e19d1a53cc' ) )
-        ->withContentType('application/json');
-        if ($email == null) {
-            $response->withData( array( 'total' => $product->price, 'description' => $description ) );
+        curl_setopt_array($curl, array(
+        CURLOPT_URL => "https://api.mobbex.com/p/payment_order",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => json_encode($postfields),
+        CURLOPT_HTTPHEADER => array(
+            "x-api-key: zJ8LFTBX6Ba8D611e9io13fDZAwj0QmKO1Hn1yIj",
+            "x-access-token: d31f0721-2f85-44e7-bcc6-15e19d1a53cc",
+            "Content-Type: application/json"
+        ),
+        ));
+
+        $response = json_decode(curl_exec($curl));
+
+        curl_close($curl);
+
+        if ($response->result) {
+            return redirect($response->data->url);
         } else {
-            $response->withData( array( 'total' => $product->price, 'description' => $description, 'email' => $email ) );
+            $code = 2;
+            return redirect('/?code=2');
         }
-        $response->asJson( true )
-        ->post();
-
-        if ($response->status = 200) {
-            $msg = 'Order successfully generated';
-            $products = Product::paginate(10);
-            $vac = array('msg' => $msg, 'products' => $products);
-            return view('home', compact('vac'));
-        } else {
-            $msg = 'an unexpected error has occurred';
-            $products = Product::paginate(10);
-            $vac = array('msg' => $msg, 'products' => $products);
-            return view('home', compact('vac'));
-        }
+        
     }
     
     public function checkout($id)
