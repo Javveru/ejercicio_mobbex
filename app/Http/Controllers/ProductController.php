@@ -55,5 +55,13 @@ class ProductController extends Controller
     {
         $product = Product::find($id);
         
+        $description = "Compra de un/una $product->title por $product->price $ ARS.";
+
+        $response = Curl::to('https://api.mobbex.com/p/payment_order')
+        ->withHeaders( array( 'x-api-key' => 'zJ8LFTBX6Ba8D611e9io13fDZAwj0QmKO1Hn1yIj', 'x-access-token' => 'd31f0721-2f85-44e7-bcc6-15e19d1a53cc' ) )
+        ->withContentType('application/json')
+        ->withData( array( 'total' => $product->price, 'currency' => 'ARS', 'return_url' => '', 'description' => $description ) )
+        ->asJson( true )
+        ->post();
     }
 }
