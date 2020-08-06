@@ -89,7 +89,7 @@ class ProductController extends Controller
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => "POST",
-        CURLOPT_POSTFIELDS =>"{\"total\":155,\"currency\":\"ARS\",\"description\":\"Checkout for x\",\"return_url\":\"https://589947b86a1e.ngrok.io/\",\"reference\":\"589947b86a1e\",\"test\":true}",
+        CURLOPT_POSTFIELDS =>json_encode($postfields),
         CURLOPT_HTTPHEADER => array(
             "x-api-key: zJ8LFTBX6Ba8D611e9io13fDZAwj0QmKO1Hn1yIj",
             "x-access-token: d31f0721-2f85-44e7-bcc6-15e19d1a53cc",
