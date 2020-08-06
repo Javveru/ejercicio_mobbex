@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Ixudra\Curl\Facades\Curl;
 
 use App\Product;
+use App\Order;
 
 class ProductController extends Controller
 {
@@ -19,12 +20,12 @@ class ProductController extends Controller
     {
         $product = Product::find($id);
 
-        $description = "Compra de un/una $product->title por $product->price $ ARS. Para recibir la orden de pago por email primero debe iniciar sesión.";
+        $description = "Orden de pago para la compra de un/una $product->title por $product->price $ ARS. Para recibir la orden de pago por email vuelva a la página anterior e inicie sesión.";
 
         $postfields = array("total" => $product->price, "description" => $description, "return_url" => route('home', ['code' => 1]));
         
         if (auth()->user()) {
-            $description = "Compra de un/una $product->title por $product->price $ ARS.";
+            $postfields["description"] = "Orden de pago para la compra de un/una $product->title por $product->price $ ARS.";
             $email = auth()->user()->email;
             $postfields["email"] = $email;
         } 
@@ -55,7 +56,6 @@ class ProductController extends Controller
         if ($response->result) {
             return redirect($response->data->url);
         } else {
-            $code = 2;
             return redirect('/?code=2');
         }
         
@@ -64,14 +64,47 @@ class ProductController extends Controller
     public function checkout($id)
     {
         $product = Product::find($id);
+
+        $order = new Order();
+        $order->product_id = $product->id;
+        $order->user_id = auth()->user()->id;
+        $order->status = 'Nuevo';
+        $order->total_price = $product->price;
+        $order->save();
         
+        $reference = $order->id;
+
         $description = "Compra de un/una $product->title por $product->price $ ARS.";
 
-        $response = Curl::to('https://api.mobbex.com/p/payment_order')
-        ->withHeaders( array( 'x-api-key' => 'zJ8LFTBX6Ba8D611e9io13fDZAwj0QmKO1Hn1yIj', 'x-access-token' => 'd31f0721-2f85-44e7-bcc6-15e19d1a53cc' ) )
-        ->withContentType('application/json')
-        ->withData( array( 'total' => $product->price, 'currency' => 'ARS', 'return_url' => '', 'description' => $description ) )
-        ->asJson( true )
-        ->post();
+        $postfields = array("total" => $product->price,"currency" => "ARS", "description" => $description, "return_url" => route('home'), "reference" => $reference, "test" => true);
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+        CURLOPT_URL => "https://api.mobbex.com/p/checkout",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS =>"{\"total\":155,\"currency\":\"ARS\",\"description\":\"Checkout for x\",\"return_url\":\"https://589947b86a1e.ngrok.io/\",\"reference\":\"589947b86a1e\",\"test\":true}",
+        CURLOPT_HTTPHEADER => array(
+            "x-api-key: zJ8LFTBX6Ba8D611e9io13fDZAwj0QmKO1Hn1yIj",
+            "x-access-token: d31f0721-2f85-44e7-bcc6-15e19d1a53cc",
+            "Content-Type: application/json"
+        ),
+        ));
+
+        $response = json_decode(curl_exec($curl));
+
+        curl_close($curl);
+
+        if ($response->result) {
+            return redirect($response->data->url);
+        } else {
+            return redirect('/?code=3');
+        }
     }
 }

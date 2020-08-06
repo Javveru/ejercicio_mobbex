@@ -15,11 +15,13 @@ Auth::routes();
 
 Route::get('/', 'HomeController@index')->name('home');
 
+Route::get('/home', function() { return redirect('/');});
+
 Route::get('/product/{id}', 'ProductController@index');
 
 Route::get('/product/{id}/order', 'ProductController@order');
 
-Route::get('/product/{id}/checkout', 'ProductController@checkout');
+Route::get('/product/{id}/checkout', 'ProductController@checkout')->middleware('auth');
 
 
 

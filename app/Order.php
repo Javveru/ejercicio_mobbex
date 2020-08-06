@@ -9,6 +9,6 @@ class Order extends Model
     public $table = 'orders';
 
     protected $fillable = [
-        'total_price', 'user_id', 'status',
+        'total_price', 'user_id', 'status', 'product_id',
     ];
 }

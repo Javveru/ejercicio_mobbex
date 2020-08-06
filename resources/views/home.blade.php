@@ -22,8 +22,8 @@
                         <h5 class="card-title">{{ $product->title }}</h5>
                         <h6>{{ $product->price }}$ ARS</h6>
                         <p class="card-text" style="max-height: 17ch;overflow: hidden;">{{ $product->description }}</p>
-                        <a href="/product/{{$product->id}}" class="btn btn-primary">Buy now!</a>
-                        <a href="#" class="btn btn-light">Add to cart</a>
+                        <a href="/product/{{$product->id}}" class="btn btn-primary">More info</a>
+                        <a href="#" class="btn btn-light disabled">Add to cart</a>
                     </div>
                 </div>
                 @endforeach
